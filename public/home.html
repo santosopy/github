@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+<script>
+    const query = window.location.search.substring(1),
+        token = query.split('access_token=')[1]
+    fetch('https://api.github.com/user', {
+        headers: {
+            Authorization: 'token ' + token
+        }
+    })
+    .then(res => res.json())
+    .then(res => {
+        const nameNode = document.createTextNode(`Welcome, ${res.name}`)
+        document.body.appendChild(nameNode)
+
+        fetch(res.repos_url)
+        .then(res => res.json())
+        .then(res => {
+            res.forEach(element => {
+                document.body.innerHTML += `<div>${element.name}</div>`
+            });
+        })
+    })
+</script>
+
+</html>
