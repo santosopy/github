@@ -10,25 +10,26 @@
     
 </body>
 <script>
-    const query = window.location.search.substring(1),
-        token = query.split('access_token=')[1]
-    fetch('https://api.github.com/user', {
+    const url = new URL(window.location),
+        token = url.searchParams.get("access_token"),
+        open_id = url.searchParams.get("open_id")
+
+    fetch('https://open-api.tiktok.com/video/list/', {
+        body: JSON.stringify({
+            access_token: token,
+            open_id: open_id,
+            cursor: 0,
+            max_count: 10,
+            fields: ["embed_html", "embed_link", "share_count"]
+        }),
         headers: {
-            Authorization: 'token ' + token
-        }
+            'Content-Type': 'application/json'
+        },
+        method: 'POST'
     })
     .then(res => res.json())
     .then(res => {
-        const nameNode = document.createTextNode(`Welcome, ${res.name}`)
-        document.body.appendChild(nameNode)
-
-        fetch(res.repos_url)
-        .then(res => res.json())
-        .then(res => {
-            res.forEach(element => {
-                document.body.innerHTML += `<div>${element.name}</div>`
-            });
-        })
+        console.log(res)
     })
 </script>
 
