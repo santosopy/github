@@ -50,7 +50,6 @@ app.get("/home", (req,res)=>{
         const accessToken = response.data.data.access_token,
             refreshToken = response.data.data.refresh_token,
             openId = response.data.data.open_id
-        // res.redirect(`/home.html?access_token=${accessToken}&open_id=${openId}`)
 
         let sql = `TRUNCATE table table_name`;
         connection.query(sql, (err,res,item) => console.log(res))
@@ -64,20 +63,46 @@ app.get("/home", (req,res)=>{
 })
 // oauth2 end
 
-app.get("/", (req,res)=>{
+// app.get("/", (req,res)=>{
+    
+// })
+
+app.get("/vidconnect", (req,res)=>{
     let sql = `SELECT * FROM table_name`,
     accessToken = "",
     refreshToken = "",
     openId = ""
-    connection.query(sql, (err,res,item) =>{
-        res.forEach(element => {
+    connection.query(sql, (err,resQ,item) =>{
+        resQ.forEach(element => {
             accessToken = element.access_token
             refreshToken = element.refresh_token
             openId = element.open_id
-            console.log(accessToken)
         })
+        res.redirect(`/vidlist?access_token=${accessToken}&open_id=${openId}`)
     })
-    connection.end()
+})
+
+app.get('/vidlist', (req, res) => {
+    const access_token = req.query.access_token,
+        open_id = req.query.open_id
+    let url_vid_list = 'https://open-api.tiktok.com/video/list/'
+        url_vid_list += '?access_token=' + access_token
+        url_vid_list += '&open_id=' + open_id
+        url_vid_list += '&cursor=0'
+        url_vid_list += '&max_count=10'
+        // url_vid_list += '&fields=["embed_html", "embed_link", "share_count"]'
+
+    axios({
+        method: 'GET',
+        url: url_vid_list,
+        headers: {
+            accept: 'application/json'
+        }
+    }).then((response) => {
+        let data = response.data.data.video_list
+
+        res.send(data)
+    })
 })
 
 app.use(express.static(__dirname + "/public"))
